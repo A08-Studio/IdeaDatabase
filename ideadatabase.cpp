@@ -34,6 +34,8 @@ IdeaDatabase::IdeaDatabase(QWidget *parent)
 
     // モデルを作成（4行×4列）
     model = new QStandardItemModel(0, HEADER_MAX);
+    proxyModel = new MultiExactProxy(this);
+    proxyModel->setSourceModel(model);
 
     // ヘッダー設定
     model->setHorizontalHeaderLabels(QStringList() << tr("ID")
@@ -41,7 +43,7 @@ IdeaDatabase::IdeaDatabase(QWidget *parent)
         << tr("Applied Section") << tr("Priority") << tr("Top-Level Category")
         << tr("Mid-Level Category") << tr("Lower-Level Category")
         << tr("Title") << tr("Description") << tr("Attachment"));
-    ui->recordTableView->setModel(model);
+    ui->recordTableView->setModel(proxyModel);
     ui->recordTableView->verticalHeader()->setVisible(false);  // 行番号を非表示にする
 
     loadStatus();
@@ -50,6 +52,10 @@ IdeaDatabase::IdeaDatabase(QWidget *parent)
     onLoadMidLevelCategory();
 
     loadDatabase();
+
+    proxyModel->setExact(2,"01_アイディア");
+    proxyModel->setExact(5,"01_高");
+
 }
 
 IdeaDatabase::~IdeaDatabase()
@@ -690,3 +696,40 @@ void IdeaDatabase::on_calendarPushButton_clicked()
     ui->dateAppliedDateEdit->setDate(sd);
 }
 
+
+MultiExactProxy::MultiExactProxy(QObject *parent)
+    : QSortFilterProxyModel(parent) {}
+
+void MultiExactProxy::setExact(int column, const QString &value)
+{
+    if (value.isEmpty() || value == QStringLiteral("すべて")) {
+        m_exact.remove(column);
+    } else {
+        m_exact[column] = value;
+    }
+    invalidateFilter();
+}
+
+void MultiExactProxy::setRoleForCompare(int role)
+{
+    setFilterRole(role);
+}
+
+void MultiExactProxy::setCaseSensitivity(Qt::CaseSensitivity cs)
+{
+    m_case = cs;
+    invalidateFilter();
+}
+
+bool MultiExactProxy::filterAcceptsRow(int srcRow, const QModelIndex &srcParent) const
+{
+    const auto *src = sourceModel();
+    for (auto it = m_exact.constBegin(); it != m_exact.constEnd(); ++it) {
+        const int col = it.key();
+        const QString expected = it.value();
+        const QString actual = src->index(srcRow, col, srcParent).data(filterRole()).toString();
+        if (QString::compare(actual, expected, m_case) != 0)
+            return false; // 1つでも不一致なら非表示
+    }
+    return true;
+}

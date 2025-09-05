@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 #include <QSqlDatabase>
+#include <QSortFilterProxyModel>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -12,6 +14,25 @@ class IdeaDatabase;
 QT_END_NAMESPACE
 
 class SettingsDialog;
+
+class MultiExactProxy : public QSortFilterProxyModel {
+    Q_OBJECT
+
+public:
+    explicit MultiExactProxy(QObject *parent=nullptr);
+    void setExact(int column, const QString &value);
+    void setRoleForCompare(int role);
+    void setCaseSensitivity(Qt::CaseSensitivity cs);
+
+protected:
+    bool filterAcceptsRow(int srcRow, const QModelIndex &srcParent) const override;
+
+private:
+    QHash<int, QString> m_exact;
+    Qt::CaseSensitivity m_case = Qt::CaseInsensitive;
+};
+
+
 class IdeaDatabase : public QMainWindow
 {
     Q_OBJECT
@@ -77,10 +98,12 @@ private:
     static const QString ATTACHMENT_DIR_PATH;
     Ui::IdeaDatabase *ui;
     QStandardItemModel *model;
+    MultiExactProxy *proxyModel;
     SettingsDialog* s;
     int id;
     QSqlDatabase db;
     QString sourcePath;
     QString fileName;
 };
+
 #endif // IDEADATABASE_H
