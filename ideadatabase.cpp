@@ -4,6 +4,7 @@
 #include <QTableView>
 #include <QStandardItem>
 #include "settingsdialog.h"
+#include "calendardialog.h"
 #include <QFile>
 
 #include <QCoreApplication>
@@ -676,5 +677,16 @@ void IdeaDatabase::on_attachmentDeletePushButton_clicked()
 
     // 例：LineEditに保存パスを表示
     ui->attachmentLabel->setText(fileName);
+}
+
+
+void IdeaDatabase::on_calendarPushButton_clicked()
+{
+    CalendarDialog dlg(this);
+    QDate cd = ui->dateAppliedDateEdit->date();
+    dlg.setDate(cd);
+    dlg.exec();
+    QDate sd = dlg.date();
+    ui->dateAppliedDateEdit->setDate(sd);
 }
 

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="batsu">batsu.png</file>
+        <file alias="calendar">calendar.png</file>
     </qresource>
 </RCC>

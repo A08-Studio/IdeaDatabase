@@ -43,6 +43,8 @@ private slots:
 
     void on_attachmentDeletePushButton_clicked();
 
+    void on_calendarPushButton_clicked();
+
 private:
     enum Header {
         ID,

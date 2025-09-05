@@ -9,15 +9,18 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    calendardialog.cpp \
     main.cpp \
     ideadatabase.cpp \
     settingsdialog.cpp
 
 HEADERS += \
+    calendardialog.h \
     ideadatabase.h \
     settingsdialog.h
 
 FORMS += \
+    calendardialog.ui \
     ideadatabase.ui \
     settingsdialog.ui
 
